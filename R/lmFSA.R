@@ -1,27 +1,29 @@
 #' FSA Linear Models
-#' @description  A function using a Feasible Soultion Algorithm to find a set of feasible (optimal in that no one swap to any of the variables will increase the criterion function) mth order interaction Linear Model
+#' @description  A function using a Feasible Soultion Algorithm to find a set of feasible solutions for the linear model including mth-order interactions (Note that these solutions are optimal in the sense that no one swap to any of the variables will increase the criterion function.)
 #' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".
 #' @param data a data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.
 #' @param fixvar=NULL a variable to fix in the model. Usually a covariate that should always be included (Age, Sex, ...). Will still consider it with interactions.
 #' @param quad to include quadratic terms or not.
 #' @param m=2 order of interaction to look at. Defults to 2.
 #' @param numrs number of random starts to perform.
-#' @param save_results whether to save the results in the current working directory as 'FSAresults.csv'.
+#' @param save_solutions whether to save the solutions in the current working directory as 'FSAsolutions.csv'.
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
 #' @param ... arguments to be passed to the lm function
 #'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
-#' @return a list of results and a table of unique results.
+#' @return returns a list of solutions and table of unique solutions.
+#' $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value, and number of swaps to solution.
+#' $table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen.
 #' @export
 #'
 #' @examples
 #' #use mtcars package see help(mtcars)
 #' data(mtcars)
 #' colnames(mtcars)
-#' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_results=F,cores=1)
+#' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
 #' fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
-lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_results=T,cores=1,...){
+lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -58,18 +60,18 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_results=T,cores=
     history[i,(dim(history)[2])]<-numswap-1
     return(history[i,])
   }
-  results<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
-  results[,1:(2*m)]<-matrix(colnames(newdata)[c(results[,1:(2*m)]+1)],ncol=(2*m))
-  results<-data.frame(results)
-  colnames(results)[dim(results)[2]:(dim(results)[2]-1)]=c("swaps","r.sq")
-  colnames(results)[1:m]=paste("start",1:m,sep=".")
-  colnames(results)[(m+1):(m*2)]=paste("best",1:m,sep=".")
-  results$r.sq<-as.numeric(levels(results$r.sq))[results$r.sq]
-  results$swaps<-as.numeric(levels(results$swaps))[results$swaps]
-  if(length(fixvar)!=0){results<-data.frame(fixvar=matrix(rep(x=fixvar,dim(results)[1]),nrow=dim(results)[1],byrow=T),results)}
-  if(save_results==T){write.csv(results,paste0(getwd(),"/FSAresults",".csv"))}
-  results<<-results
-  a<-results[,(length(fixvar)+m+1):(length(fixvar)+m+1+m-1)]
+  solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
+  solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
+  solutions<-data.frame(solutions)
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","r.sq")
+  colnames(solutions)[1:m]=paste("start",1:m,sep=".")
+  colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
+  solutions$r.sq<-as.numeric(levels(solutions$r.sq))[solutions$r.sq]
+  solutions$swaps<-as.numeric(levels(solutions$swaps))[solutions$swaps]
+  if(length(fixvar)!=0){solutions<-data.frame(fixvar=matrix(rep(x=fixvar,dim(solutions)[1]),nrow=dim(solutions)[1],byrow=T),solutions)}
+  if(save_solutions==T){write.csv(solutions,paste0(getwd(),"/FSAsolutions",".csv"))}
+  solutions<<-solutions
+  a<-solutions[,(length(fixvar)+m+1):(length(fixvar)+m+1+m-1)]
   b<-unique(t(apply(a,sort,MARGIN = 1)),MARGIN = 1)
   a<-t(apply(a,sort,MARGIN = 1))
   c<-cbind(b,0)
@@ -79,5 +81,6 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_results=T,cores=
     }
   }
   tableres<-c
-  return(list(results=results,table=tableres))
+  colnames(tableres)[dim(c)[2]]<-"times"
+  return(list(solutions=solutions,table=tableres))
 }

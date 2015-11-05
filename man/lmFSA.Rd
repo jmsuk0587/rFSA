@@ -5,7 +5,7 @@
 \title{FSA Linear Models}
 \usage{
 lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_results = T, cores = 1, ...)
+  save_solutions = T, cores = 1, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".}
@@ -16,7 +16,7 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 
 \item{numrs}{number of random starts to perform.}
 
-\item{save_results}{whether to save the results in the current working directory as 'FSAresults.csv'.}
+\item{save_solutions}{whether to save the solutions in the current working directory as 'FSAsolutions.csv'.}
 
 \item{cores}{number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.}
 
@@ -27,10 +27,12 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 \item{m=2}{order of interaction to look at. Defults to 2.}
 }
 \value{
-a list of results and a table of unique results.
+returns a list of solutions and table of unique solutions.
+$solutions is a matrix of fixed terms, start position, feasible solution, criterion function value, and number of swaps to solution.
+$table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen.
 }
 \description{
-A function using a Feasible Soultion Algorithm to find a set of feasible (optimal in that no one swap to any of the variables will increase the criterion function) mth order interaction Linear Model
+A function using a Feasible Soultion Algorithm to find a set of feasible solutions for the linear model including mth-order interactions (Note that these solutions are optimal in the sense that no one swap to any of the variables will increase the criterion function.)
 }
 \details{
 PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
@@ -39,7 +41,7 @@ PLEASE NOTE: make sure categorical variables are factors or characters otherwise
 #use mtcars package see help(mtcars)
 data(mtcars)
 colnames(mtcars)
-lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_results=F,cores=1)
+lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
 fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
 summary(fit) #review
 }
