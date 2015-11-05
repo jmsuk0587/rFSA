@@ -12,8 +12,8 @@
 #'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 #' @return returns a list of solutions and table of unique solutions.
-#' $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value, and number of swaps to solution.
-#' $table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen.
+#' $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
+#' $table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen. It also returns any warning messages with these solutions in the last column.
 #' @export
 #'
 #' @examples
@@ -80,7 +80,27 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
       c[i,(m+1)]<-sum(as.numeric(c[i,(m+1)])+as.numeric(identical(a[j,],b[i,])))
     }
   }
-  tableres<-c
-  colnames(tableres)[dim(c)[2]]<-"times"
+  tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
+  colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
+  colnames(tableres)[1:(dim(tableres)[2]-2)]<-paste("Var",1:(dim(tableres)[2]-2),sep="")
+  colnames(tableres)[dim(tableres)[2]]<-"warnings"
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","p-value")
+  withWarnings <- function(expr) {
+    myWarnings <- NULL
+    wHandler <- function(w) {
+      myWarnings <<- c(myWarnings, list(w))
+      invokeRestart("muffleWarning")
+    }
+    val <- withCallingHandlers(expr, warning = wHandler)
+    list(value = val, warnings = myWarnings)
+  }
+  form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,1:m],collapse = "*")),sep="")
+  warns<-NULL
+  for (i in 1:dim(tableres)[1]){
+    ca<-as.character(withWarnings(lm(form(i),data=newdata,...))$warnings[[1]])
+    if(length(ca)==0){warns<-c(warns,NA)}
+    else{warns<-c(warns,ca)}
+  }
+  tableres$warnings<-warns
   return(list(solutions=solutions,table=tableres))
 }

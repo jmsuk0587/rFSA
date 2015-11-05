@@ -28,8 +28,8 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 }
 \value{
 returns a list of solutions and table of unique solutions.
-$solutions is a matrix of fixed terms, start position, feasible solution, criterion function value, and number of swaps to solution.
-$table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen.
+$solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
+$table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen. It also returns any warning messages with these solutions in the last column.
 }
 \description{
 A function using a Feasible Soultion Algorithm to find a set of feasible solutions for the linear model including mth-order interactions (Note that these solutions are optimal in the sense that no one swap to any of the variables will increase the criterion function.)

@@ -5,7 +5,7 @@
 \title{FSA Generalized Linear Models}
 \usage{
 glmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = T, fam, cores = detectCores()/3, ...)
+  save_solutions = T, fam, cores = 1, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".}
@@ -29,7 +29,9 @@ glmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 \item{save_results}{whether to save the results in the current working directory as 'FSAresults.csv'.}
 }
 \value{
-a list of results and a table of unique results.
+returns a list of solutions and table of unique solutions.
+$solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
+$table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen. It also returns any warning messages with these solutions in the last column.
 }
 \description{
 A function using a Feasible Soultion Algorithm to find a set of feasible (optimal in that no one swap to any of the variables will increase the criterion function) mth order interaction Generalized Linear Model
@@ -38,13 +40,13 @@ A function using a Feasible Soultion Algorithm to find a set of feasible (optima
 PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 }
 \examples{
-#use mtcars package see help(mtcars)
-data(mtcars)
-colnames(mtcars)
-df<-mtcars
-df[,c(2,8:11)]<-lapply(mtcars[,c(2,8:11)],factor)
-glmFSA(am~cyl*disp,data=df,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,fam="binomial",cores=1)
-fit<-glm(am~hp*qsec,data=df,family="binomial") #this is the most common answer from lmFSA.
-summary(fit) #review
+dat<-read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data",header = F)
+colnames(dat)<-c("Class","Age","Sex","Sterioid","Antivirals","Fatigue","Malaise","Anorexia","Liver Big","Liver Firm","Spleen Palpable","Spiders","Ascites","Varices","Bilirubin","Alk Phosphate","Sgot","Albumin","Protime","Histology")
+dat<-as.matrix(dat)
+dat[which(dat=="?")]=NA
+dat<-data.frame(dat)
+dat[,c(2,15,16,17,18,19)]<-lapply(X = dat[,c(2,15,16,17,18,19)],as.numeric)
+colnames(dat)
+glmFSA(Class~Age*Sex,data=dat,fixvar="Age",quad=F,m=2,numrs=10,save_solutions = F,fam="binomial",cores=1)
 }
 

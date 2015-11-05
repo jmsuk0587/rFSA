@@ -12,19 +12,23 @@
 #' @param ... arguments to be passed to the glm function
 #'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
-#' @return a list of results and a table of unique results.
+#' @return returns a list of solutions and table of unique solutions.
+#' $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
+#' $table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen. It also returns any warning messages with these solutions in the last column.
 #' @export
 #'
 #' @examples
-#' #use mtcars package see help(mtcars)
-#' data(mtcars)
-#' colnames(mtcars)
-#' df<-mtcars
-#' df[,c(2,8:11)]<-lapply(mtcars[,c(2,8:11)],factor)
-#' glmFSA(am~cyl*disp,data=df,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,fam="binomial",cores=1)
-#' fit<-glm(am~hp*qsec,data=df,family="binomial") #this is the most common answer from lmFSA.
-#' summary(fit) #review
-glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam,cores=detectCores()/3,...){
+#' dat<-read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data",header = F)
+#' colnames(dat)<-c("Class","Age","Sex","Sterioid","Antivirals","Fatigue","Malaise","Anorexia","Liver Big","Liver Firm","Spleen Palpable","Spiders","Ascites","Varices","Bilirubin","Alk Phosphate","Sgot","Albumin","Protime","Histology")
+#' dat<-as.matrix(dat)
+#' dat[which(dat=="?")]=NA
+#' dat<-data.frame(dat)
+#' dat[,c(2,15,16,17,18,19)]<-lapply(X = dat[,c(2,15,16,17,18,19)],as.numeric)
+#' colnames(dat)
+#' glmFSA(Class~Age*Sex,data=dat,fixvar="Age",quad=F,m=2,numrs=10,save_solutions = F,fam="binomial",cores=1)
+#'
+
+glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam,cores=1,...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -52,7 +56,7 @@ glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam
       moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)
       form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k){
-        fit<-glm(form(k),data=newdata,family=fam,...)
+        fit<-suppressWarnings(glm(form(k),data=newdata,family=fam,...))
         anv<-anova(fit,test="Chisq")
         c(summary(fit)$aic,anv[dim(anv)[1],dim(anv)[2]])
       },mc.cores=cores)
@@ -87,7 +91,27 @@ glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam
       c[i,(m+1)]<-sum(as.numeric(c[i,(m+1)])+as.numeric(identical(a[j,],b[i,])))
     }
   }
-  tableres<-c
+  tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
+  colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
+  colnames(tableres)[1:(dim(tableres)[2]-2)]<-paste("Var",1:(dim(tableres)[2]-2),sep="")
+  colnames(tableres)[dim(tableres)[2]]<-"warnings"
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","p-value")
+  withWarnings <- function(expr) {
+    myWarnings <- NULL
+    wHandler <- function(w) {
+      myWarnings <<- c(myWarnings, list(w))
+      invokeRestart("muffleWarning")
+    }
+    val <- withCallingHandlers(expr, warning = wHandler)
+    list(value = val, warnings = myWarnings)
+  }
+    form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,1:m],collapse = "*")),sep="")
+    warns<-NULL
+  for (i in 1:dim(tableres)[1]){
+    ca<-as.character(withWarnings(glm(form(i),family=fam,data=dat,...))$warnings[[1]])
+    if(length(ca)==0){warns<-c(warns,NA)}
+    else{warns<-c(warns,ca)}
+    }
+  tableres$warnings<-warns
   return(list(solutions=solutions,table=tableres))
 }
