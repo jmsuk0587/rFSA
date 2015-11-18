@@ -108,7 +108,7 @@ glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam
     form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,1:m],collapse = "*")),sep="")
     warns<-NULL
   for (i in 1:dim(tableres)[1]){
-    ca<-as.character(withWarnings(glm(form(i),family=fam,data=dat,...))$warnings[[1]])
+    ca<-as.character(withWarnings(glm(form(i),family=fam,data=newdata,...))$warnings[[1]])
     if(length(ca)==0){warns<-c(warns,NA)}
     else{warns<-c(warns,ca)}
     }
