@@ -30,18 +30,18 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   startvar<-get.vars()
   fit=lm(formula,data=data,...)
   ypos<-which(colnames(data)==lhsvar)
-
+  
   xdata<-data[,-ypos]
   ydata<-data[,ypos]
   newdata<-data.frame(cbind(ydata,xdata))
   fixpos<-which(colnames(xdata) %in% fixvar)
   if(length(fixpos)==0){fixpos=NULL}
-
+  
   history<-matrix(rep(NA,numrs*(2*m+2)),ncol=(2*m+2))
   history[,1:m]<-rstart(m=m,nvars=(dim(newdata)[2]-1),numrs=numrs)
   curpos<-which(colnames(xdata) %in% startvar[-1])
   if(length(curpos)!=0){history<-rbind(c(curpos,rep(NA,length(curpos)+2)),history)}
-
+  
   fsa<-function(i,history,...){
     cur<-history[i,1:m]
     last<-rep(NA,m)
@@ -71,18 +71,21 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   if(length(fixvar)!=0){solutions<-data.frame(fixvar=matrix(rep(x=fixvar,dim(solutions)[1]),nrow=dim(solutions)[1],byrow=T),solutions)}
   if(save_solutions==T){write.csv(solutions,paste0(getwd(),"/FSAsolutions",".csv"))}
   solutions<<-solutions
-  a<-solutions[,(length(fixvar)+m+1):(length(fixvar)+m+1+m-1)]
+  a<-solutions[,(length(fixvar)+m+1):(length(fixvar)+m+1+m)]
   b<-unique(t(apply(a,sort,MARGIN = 1)),MARGIN = 1)
+  b <- cbind(b[,2:(m+1)],b[,1])
   a<-t(apply(a,sort,MARGIN = 1))
+  a <- cbind(a[,2:(m+1)],a[,1])
   c<-cbind(b,0)
   for(i in 1:dim(b)[1]){
     for(j in 1:dim(a)[1]){
-      c[i,(m+1)]<-sum(as.numeric(c[i,(m+1)])+as.numeric(identical(a[j,],b[i,])))
+      c[i,(m+2)]<-sum(as.numeric(c[i,(m+2)])+as.numeric(identical(a[j,],b[i,])))
     }
   }
   tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
   colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
-  colnames(tableres)[1:(dim(tableres)[2]-2)]<-paste("Var",1:(dim(tableres)[2]-2),sep="")
+  colnames(tableres)[1:(dim(tableres)[2]-3)]<-paste("Var",1:(dim(tableres)[2]-3),sep="")
+  colnames(tableres)[m+1] <- "p-value"
   colnames(tableres)[dim(tableres)[2]]<-"warnings"
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","p-value")
   withWarnings <- function(expr) {
