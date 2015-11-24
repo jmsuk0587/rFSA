@@ -73,9 +73,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   solutions<<-solutions
   a<-solutions[,(length(fixvar)+m+1):(length(fixvar)+m+1+m)]
   b<-unique(t(apply(a,sort,MARGIN = 1)),MARGIN = 1)
-  b <- cbind(b[,2:(m+1)],b[,1])
   a<-t(apply(a,sort,MARGIN = 1))
-  a <- cbind(a[,2:(m+1)],a[,1])
   c<-cbind(b,0)
   for(i in 1:dim(b)[1]){
     for(j in 1:dim(a)[1]){
@@ -84,8 +82,8 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   }
   tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
   colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
-  colnames(tableres)[1:(dim(tableres)[2]-3)]<-paste("Var",1:(dim(tableres)[2]-3),sep="")
-  colnames(tableres)[m+1] <- "r.sq"
+  colnames(tableres)[2:(dim(tableres)[2]-2)]<-paste("Var",2:(dim(tableres)[2]-2),sep="")
+  colnames(tableres)[1] <- "r.sq"
   colnames(tableres)[dim(tableres)[2]]<-"warnings"
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","r.sq")
   withWarnings <- function(expr) {
@@ -97,7 +95,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     val <- withCallingHandlers(expr, warning = wHandler)
     list(value = val, warnings = myWarnings)
   }
-  form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,1:m],collapse = "*")),sep="")
+  form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,2:m+1],collapse = "*")),sep="")
   warns<-NULL
   for (i in 1:dim(tableres)[1]){
     ca<-as.character(withWarnings(lm(form(i),data=newdata,...))$warnings[[1]])
