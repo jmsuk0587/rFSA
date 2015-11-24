@@ -85,9 +85,9 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
   colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
   colnames(tableres)[1:(dim(tableres)[2]-3)]<-paste("Var",1:(dim(tableres)[2]-3),sep="")
-  colnames(tableres)[m+1] <- "p-value"
+  colnames(tableres)[m+1] <- "r.sq"
   colnames(tableres)[dim(tableres)[2]]<-"warnings"
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","p-value")
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","r.sq")
   withWarnings <- function(expr) {
     myWarnings <- NULL
     wHandler <- function(w) {
