@@ -5,7 +5,7 @@
 \title{FSA Generalized Linear Models}
 \usage{
 glmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = T, fam, cores = 1, ...)
+  save_solutions = T, fam, cores = 1, interactions = T, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".}
@@ -19,6 +19,8 @@ glmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 \item{fam}{family argument passed to glm. a description of the error distribution and link function to be used in the model. This can be a character string naming a family function, a family function or the result of a call to a family function.}
 
 \item{cores}{number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.}
+
+\item{interactions}{T or F for whether to include interactions in model.}
 
 \item{...}{arguments to be passed to the glm function}
 

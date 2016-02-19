@@ -8,7 +8,9 @@
 #' @param numrs number of random starts to perform.
 #' @param save_solutions whether to save the solutions in the current working directory as 'FSAsolutions.csv'.
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
+#' @param interactions T or F for whether to include interactions in model. 
 #' @param ... arguments to be passed to the lm function
+#' 
 #'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 #' @return returns a list of solutions and table of unique solutions.
@@ -23,7 +25,7 @@
 #' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
 #' fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
-lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,...){
+lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,interactions=T,...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -49,7 +51,8 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     while(!identical(cur,last)){
       last<-cur
       moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)
-      form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")
+      if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
+      if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) summary(lm(form(k),data=newdata,...))$r.squared,mc.cores=cores)
       cur<-moves[,which.max(tmp)]
       r.sq<-unlist(tmp[which.max(tmp)])

@@ -9,6 +9,7 @@
 #' @param save_results whether to save the results in the current working directory as 'FSAresults.csv'.
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
 #' @param fam family argument passed to glm. a description of the error distribution and link function to be used in the model. This can be a character string naming a family function, a family function or the result of a call to a family function.
+#' @param interactions T or F for whether to include interactions in model. 
 #' @param ... arguments to be passed to the glm function
 #'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
@@ -28,7 +29,7 @@
 #' glmFSA(Class~Age*Sex,data=dat,fixvar="Age",quad=F,m=2,numrs=10,save_solutions = F,fam="binomial",cores=1)
 #'
 
-glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam,cores=1,...){
+glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam,cores=1,interactions=T,...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -54,7 +55,8 @@ glmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,fam
     while(!identical(cur,last)){
       last<-cur
       moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)
-      form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")
+      if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
+      if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k){
         fit<-suppressWarnings(glm(form(k),data=newdata,family=fam,...))
         anv<-anova(fit,test="Chisq")
