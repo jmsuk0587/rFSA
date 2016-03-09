@@ -2,7 +2,7 @@
 % Please edit documentation in R/swaps.R
 \name{swaps}
 \alias{swaps}
-\title{Variables to include in an mth order interaction model determined from the Feasible Soution Alorithm.}
+\title{Variables to include in first steip of an mth order interaction model determined from the Feasible Soution Alorithm.}
 \usage{
 swaps(cur, n, quad = FALSE)
 }

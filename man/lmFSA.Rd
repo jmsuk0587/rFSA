@@ -5,7 +5,8 @@
 \title{FSA Linear Models}
 \usage{
 lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = T, cores = 1, interactions = T, ...)
+  save_solutions = T, cores = 1, interactions = T,
+  criterion = r.squared, minmax = "max", ...)
 }
 \arguments{
 \item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".}
@@ -21,6 +22,10 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 \item{cores}{number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.}
 
 \item{interactions}{T or F for whether to include interactions in model.}
+
+\item{criterion}{which criterion function to either maximize or minimize}
+
+\item{minmax}{whether to minimize or maximize the criterion function}
 
 \item{...}{arguments to be passed to the lm function}
 

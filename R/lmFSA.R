@@ -9,6 +9,8 @@
 #' @param save_solutions whether to save the solutions in the current working directory as 'FSAsolutions.csv'.
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
 #' @param interactions T or F for whether to include interactions in model. 
+#' @param criterion which criterion function to either maximize or minimize
+#' @param minmax whether to minimize or maximize the criterion function
 #' @param ... arguments to be passed to the lm function
 #' 
 #'
@@ -25,7 +27,7 @@
 #' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
 #' fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
-lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,interactions=T,...){
+lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,interactions=T,criterion=r.squared,minmax="max",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -48,28 +50,49 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     cur<-history[i,1:m]
     last<-rep(NA,m)
     numswap<-0
+    memswap<-NULL
+    if(minmax=="max"){last.criterion<-(-Inf)}
+    if(minmax=="min"){last.criterion<-(Inf)}
+    totalmodelchecks<-0
     while(!identical(cur,last)){
       last<-cur
-      moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)
+      if(numswap==0){moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
+      if(numswap>0){moves<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
+      }
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
-      tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) summary(lm(form(k),data=newdata,...))$r.squared,mc.cores=cores)
-      cur<-moves[,which.max(tmp)]
-      r.sq<-unlist(tmp[which.max(tmp)])
+      tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(lm(form(k),data=newdata,...)),mc.cores=cores)
+      if(minmax=="max"){cur<-moves[,which.max.na(unlist(tmp))[1]]
+      cur.criterion<-unlist(tmp[which.max.na(unlist(tmp))[1]])
+      if(last.criterion>cur.criterion){cur<-last.pos
+      cur.criterion<-last.criterion}
+      }
+      if(minmax=="min"){cur<-moves[,which.min.na(unlist(tmp))[1]]
+      cur.criterion<-unlist(tmp[which.min.na(unlist(tmp))[1]])
+      if(last.criterion<cur.criterion){cur<-last.pos
+      cur.criterion<-last.criterion}
+      }
+      
+      
       numswap<-numswap+1
+      totalmodelchecks<-totalmodelchecks+dim(moves)[2]
+      last1<-last
+      last.criterion<-cur.criterion
+      last.pos<-cur
+      memswap<-unique(c(memswap,last1))
     }
     history[i,(1+m):(2*m)]<-cur
-    history[i,(dim(history)[2]-1)]<-r.sq
+    history[i,(dim(history)[2]-1)]<-cur.criterion
     history[i,(dim(history)[2])]<-numswap-1
     return(history[i,])
   }
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","r.sq")
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
   colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
-  solutions$r.sq<-as.numeric(levels(solutions$r.sq))[solutions$r.sq]
+  solutions$criterion<-as.numeric(levels(solutions$criterion))[solutions$criterion]
   solutions$swaps<-as.numeric(levels(solutions$swaps))[solutions$swaps]
   if(length(fixvar)!=0){solutions<-data.frame(fixvar=matrix(rep(x=fixvar,dim(solutions)[1]),nrow=dim(solutions)[1],byrow=T),solutions)}
   if(save_solutions==T){write.csv(solutions,paste0(getwd(),"/FSAsolutions",".csv"))}
@@ -86,9 +109,9 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   tableres<-data.frame(cbind(c,NA),stringsAsFactors = F)
   colnames(tableres)[(dim(tableres)[2]-1)]<-"times"
   colnames(tableres)[2:(dim(tableres)[2]-2)]<-paste("Var",2:(dim(tableres)[2]-2),sep="")
-  colnames(tableres)[1] <- "r.sq"
+  colnames(tableres)[1] <- "criterion"
   colnames(tableres)[dim(tableres)[2]]<-"warnings"
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","r.sq")
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","criterion")
   withWarnings <- function(expr) {
     myWarnings <- NULL
     wHandler <- function(w) {
