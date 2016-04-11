@@ -56,8 +56,8 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     totalmodelchecks<-0
     while(!identical(cur,last)){
       last<-cur
-      if(numswap==0){moves<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
-      if(numswap>0){moves<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
+      if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
+      if(numswap>0){moves<<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
       }
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
