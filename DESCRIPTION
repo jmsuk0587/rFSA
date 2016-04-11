@@ -1,11 +1,19 @@
 Package: rFSA
 Type: Package
-Title: rFSA implements a Feasible Solution Algorithm (FSA) to optimal models of a specific form that include mth order interactions.
+Title: rFSA implements a Feasible Solution Algorithm (FSA) to optimal models of
+    a specific form that include mth order interactions.
 Version: 0.2
 Date: 2015-11-04
 Author: Joshua Lambert <joshua.lambert@uky.edu>
 Maintainer: Sarah Janse <Sarah.janse@uky.edu>
-Description: rFSA fundamentally uses the lm and glm functions to fit models of a specific form. This form can have fixed variables and mth order interactions and their lower order terms.
-Depends: R (>= 2.15.0), formula.tools, parallel, DAAG
+Description: rFSA fundamentally uses the lm and glm functions to fit models of a
+    specific form. This form can have fixed variables and mth order interactions and
+    their lower order terms.
+Depends:
+    R (>= 2.15.0),
+    formula.tools,
+    parallel,
+    DAAG
 License: MIT
 LazyData: TRUE
+RoxygenNote: 5.0.0
