@@ -27,7 +27,7 @@
 #' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
 #' fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
-lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,cores=1,interactions=T,criterion=r.squared,minmax="max",...){
+lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=r.squared,minmax="max",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-lhs(formula)
@@ -41,7 +41,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   fixpos<-which(colnames(xdata) %in% fixvar)
   if(length(fixpos)==0){fixpos=NULL}
   
-  history<-matrix(rep(NA,numrs*(2*m+2)),ncol=(2*m+2))
+  history<-matrix(rep(NA,numrs*(2*m+2)),ncol=((2*m+3)))
   history[,1:m]<-rstart(m=m,nvars=(dim(newdata)[2]-1),numrs=numrs)
   curpos<-which(colnames(xdata) %in% startvar[-1])
   if(length(curpos)!=0){history<-rbind(c(curpos,rep(NA,length(curpos)+2)),history)}
@@ -53,7 +53,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     memswap<-NULL
     if(minmax=="max"){last.criterion<-(-Inf)}
     if(minmax=="min"){last.criterion<-(Inf)}
-    totalmodelchecks<-0
+    checks<-0
     while(!identical(cur,last)){
       last<-cur
       if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
@@ -62,6 +62,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(lm(form(k),data=newdata,...)),mc.cores=cores)
+      checks<-checks+dim(moves)[2]
       if(minmax=="max"){cur<-moves[,which.max.na(unlist(tmp))[1]]
       cur.criterion<-unlist(tmp[which.max.na(unlist(tmp))[1]])
       if(last.criterion>cur.criterion){cur<-last.pos
@@ -75,25 +76,26 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
       
       
       numswap<-numswap+1
-      totalmodelchecks<-totalmodelchecks+dim(moves)[2]
       last1<-last
       last.criterion<-cur.criterion
       last.pos<-cur
       memswap<-unique(c(memswap,last1))
     }
     history[i,(1+m):(2*m)]<-cur
-    history[i,(dim(history)[2]-1)]<-cur.criterion
-    history[i,(dim(history)[2])]<-numswap-1
+    history[i,(dim(history)[2]-2)]<-cur.criterion
+    history[i,(dim(history)[2]-1)]<-numswap-1
+    history[i,(dim(history)[2])]<-checks
     return(history[i,])
   }
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","criterion")
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swaps","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
   colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
   solutions$criterion<-as.numeric(levels(solutions$criterion))[solutions$criterion]
   solutions$swaps<-as.numeric(levels(solutions$swaps))[solutions$swaps]
+  solutions$checks<-as.numeric(levels(solutions$checks))[solutions$checks]
   if(length(fixvar)!=0){solutions<-data.frame(fixvar=matrix(rep(x=fixvar,dim(solutions)[1]),nrow=dim(solutions)[1],byrow=T),solutions)}
   if(save_solutions==T){write.csv(solutions,paste0(getwd(),"/FSAsolutions",".csv"))}
   solutions<<-solutions
@@ -111,7 +113,6 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
   colnames(tableres)[2:(dim(tableres)[2]-2)]<-paste("Var",2:(dim(tableres)[2]-2),sep="")
   colnames(tableres)[1] <- "criterion"
   colnames(tableres)[dim(tableres)[2]]<-"warnings"
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-1)]=c("swaps","criterion")
   withWarnings <- function(expr) {
     myWarnings <- NULL
     wHandler <- function(w) {
@@ -129,5 +130,5 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=T,core
     else{warns<-c(warns,ca)}
   }
   tableres$warnings<-warns
-  return(list(solutions=solutions,table=tableres))
+  return(list(solutions=solutions,table=tableres,efficiency=sum(solutions$checks)/choose(n = dim(xdata)[2],k = m)))
 }
