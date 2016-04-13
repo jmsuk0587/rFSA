@@ -88,8 +88,10 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,core
     return(history[i,])
   }
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
+  show(solutions)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
+  print
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swaps","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
   colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
