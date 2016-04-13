@@ -41,7 +41,7 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,core
   fixpos<-which(colnames(xdata) %in% fixvar)
   if(length(fixpos)==0){fixpos=NULL}
   
-  history<-matrix(rep(NA,numrs*(2*m+2)),ncol=((2*m+3)))
+  history<-matrix(rep(NA,numrs*(2*m+3)),ncol=((2*m+3)))
   history[,1:m]<-rstart(m=m,nvars=(dim(newdata)[2]-1),numrs=numrs)
   curpos<-which(colnames(xdata) %in% startvar[-1])
   if(length(curpos)!=0){history<-rbind(c(curpos,rep(NA,length(curpos)+2)),history)}
@@ -132,5 +132,5 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,core
     else{warns<-c(warns,ca)}
   }
   tableres$warnings<-warns
-  return(list(solutions=solutions,table=tableres,efficiency=sum(solutions$checks)/choose(n = dim(xdata)[2],k = m)))
+  return(list(solutions=solutions,table=tableres,efficiency=paste("You did:",sum(solutions$checks)," model checks compared to ",choose(n = dim(xdata)[2],k = m)," checks you would have done with exahstive search.")))
 }
