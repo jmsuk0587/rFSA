@@ -45,5 +45,5 @@ nextswap<-function(curpos,n,prevpos,quad){
   for(i in 1:dim(swps)[1]){
     nextpos<-nextpos+(swps[i,] %in% prevpos)
   }
-  return(list(nswaps=swps[,nextpos==0],prevpos=prevpos))
+  return(list(nswaps=swps[,nextpos==(length(curpos)-2)],prevpos=prevpos))
 }
