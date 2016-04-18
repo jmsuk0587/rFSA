@@ -3,7 +3,6 @@
 #' @param formula an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".
 #' @param data a data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.
 #' @param fixvar=NULL a variable to fix in the model. Usually a covariate that should always be included (Age, Sex, ...). Will still consider it with interactions.
-#' @param quad to include quadratic terms or not.
 #' @param m=2 order of interaction to look at. Defults to 2.
 #' @param numrs number of random starts to perform.
 #' @param save_solutions whether to save the solutions in the current working directory as 'FSAsolutions.csv'.
@@ -88,7 +87,6 @@ lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,core
     return(history[i,])
   }
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
-  show(solutions)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
   print
