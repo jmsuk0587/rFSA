@@ -9,7 +9,7 @@
 #' @param save_solutions whether to save the solutions in the current working directory as 'FSAsolutions.csv'.
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
 #' @param interactions T or F for whether to include interactions in model. Defaults to FALSE. 
-#' @param criterion which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA, cv10.lmFSA, apress, int.p.val, AIC, BIC.
+#' @param criterion which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA (5 Fold Cross Validation error), cv10.lmFSA (10 Fold Cross Validation error), apress (Allen's Press Statistic), int.p.val (Interaction P-value), AIC, BIC.
 #' @param minmax whether to minimize or maximize the criterion function
 #' @param ... arguments to be passed to the lm function
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
@@ -22,18 +22,17 @@
 #' #use mtcars package see help(mtcars)
 #' data(mtcars)
 #' colnames(mtcars)
-#' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
-#' fit<-lm(yname="mpg",data=mtcars) #this is the most common answer from lmFSA.
+#' lmFSA(yname="mpg",data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
+#' fit<-lm(mpg~cyl*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
 
-lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=r.squared,minmax="max",...){
+lmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=r.squared,minmax="max",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
-  lhsvar<-lhs(formula)
-  startvar<-get.vars()
-  fit=lm(formula,data=data,...)
-  ypos<-which(colnames(data)==lhsvar)
+  lhsvar<-yname
   
+  ypos<-which(colnames(data)==lhsvar)
+  startvar<-NULL
   xdata<-data[,-ypos]
   ydata<-data[,ypos]
   newdata<-data.frame(cbind(ydata,xdata))

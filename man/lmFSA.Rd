@@ -4,11 +4,13 @@
 \alias{lmFSA}
 \title{Feasible Solution Algorithm (FSA) for Linear Models}
 \usage{
-lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
+lmFSA(yname, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
   save_solutions = F, cores = 1, interactions = F,
   criterion = r.squared, minmax = "max", ...)
 }
 \arguments{
+\item{yname}{the character form of the name of the y (response) variable. Please write the name of the y variable in quotes (example: "mpg").}
+
 \item{data}{a data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model.}
 
 \item{quad}{to include quadratic terms or not.}
@@ -21,13 +23,11 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 
 \item{interactions}{T or F for whether to include interactions in model. Defaults to FALSE.}
 
-\item{criterion}{which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA, cv10.lmFSA, apress, int.p.val, AIC, BIC.}
+\item{criterion}{which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA (5 Fold Cross Validation error), cv10.lmFSA (10 Fold Cross Validation error), apress (Allen's Press Statistic), int.p.val (Interaction P-value), AIC, BIC.}
 
 \item{minmax}{whether to minimize or maximize the criterion function}
 
 \item{...}{arguments to be passed to the lm function}
-
-\item{yname}{the character form of the name of the y (response) variable. Please write the name of the y variable in quotes (example: "mpg").}
 
 \item{fixvar=NULL}{a variable to fix in the model. Usually a covariate that should always be included (Example: Age, Sex). Will still consider it with interactions.}
 
@@ -49,8 +49,8 @@ PLEASE NOTE: make sure categorical variables are factors or characters otherwise
 #use mtcars package see help(mtcars)
 data(mtcars)
 colnames(mtcars)
-lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
-fit<-lm(yname="mpg",data=mtcars) #this is the most common answer from lmFSA.
+lmFSA(yname="mpg",data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
+fit<-lm(mpg~cyl*wt,data=mtcars) #this is the most common answer from lmFSA.
 summary(fit) #review
 }
 

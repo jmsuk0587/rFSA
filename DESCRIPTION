@@ -12,7 +12,8 @@ Description: rFSA fundamentally uses the lm and glm functions to fit models of a
 Depends:
     R (>= 2.15.0),
     parallel,
-    DAAG
+    DAAG,
+    formula.tools
 License: MIT
 LazyData: TRUE
 RoxygenNote: 5.0.0

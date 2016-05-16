@@ -10,7 +10,7 @@
 #' @param cores number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.
 #' @param fam family argument passed to glm. A description of the error distribution and link function to be used in the model. This can be a character string naming a family function, a family function or the result of a call to a family function.
 #' @param interactions T or F for whether to include interactions in model. Defaults to FALSE. 
-#' @param criterion which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA, cv10.lmFSA, apress, int.p.val, AIC, BIC.
+#' @param criterion which criterion function to either maximize or minimize. For linear models one can use: apress (Allens Press Statistic), int.p.val (Interaction p-value), AIC, BIC.
 #' @param minmax whether to minimize or maximize the criterion function
 #' @param ... arguments to be passed to the glm function
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
@@ -20,7 +20,7 @@
 #' $efficiency is text comparing how many models you ran during your FSA search compared to how many you would have done with exhaustive search. Note: The FSA algorithm takes additional time to run on top of the model checks that were done during the algorithm. This additional time is approximately 15% more time than if you had just ran the model checks. 
 #' @export
 #' @examples
-#' dat<-read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data",header = F)
+#' dat<-read.csv("http://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data",header = F)
 #' colnames(dat)<-c("Class","Age","Sex","Sterioid","Antivirals","Fatigue","Malaise","Anorexia","Liver Big","Liver Firm","Spleen Palpable","Spiders","Ascites","Varices","Bilirubin","Alk Phosphate","Sgot","Albumin","Protime","Histology")
 #' dat<-as.matrix(dat)
 #' dat[which(dat=="?")]=NA
@@ -29,13 +29,13 @@
 #' colnames(dat)
 #' glmFSA(yname="Class",data=dat,fixvar="Age",quad=F,m=2,numrs=10,save_solutions = F,fam="binomial",cores=1)
 
-glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=AIC,minmax="max",fam="binomial",...){
+glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=AIC,minmax="min",fam="binomial",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-yname
-
-  ypos<-which(colnames(data)==lhsvar)
   
+  ypos<-which(colnames(data)==lhsvar)
+  startvar<-NULL
   xdata<-data[,-ypos]
   ydata<-data[,ypos]
   newdata<-data.frame(cbind(ydata,xdata))
