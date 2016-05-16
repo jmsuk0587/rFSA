@@ -34,3 +34,7 @@ which.min.na<-function(vec){
   minval<-min(vec,na.rm=T)
   which(vec==minval)
 }
+
+int.p.val<-function(model){
+  tail(fit$coefficients,n = 1)
+}

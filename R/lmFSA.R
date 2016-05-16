@@ -11,8 +11,6 @@
 #' @param criterion which criterion function to either maximize or minimize
 #' @param minmax whether to minimize or maximize the criterion function
 #' @param ... arguments to be passed to the lm function
-#' 
-#'
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 #' @return returns a list of solutions and table of unique solutions.
 #' $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
@@ -24,8 +22,9 @@
 #' data(mtcars)
 #' colnames(mtcars)
 #' lmFSA(mpg~cyl*disp,data=mtcars,fixvar="hp",quad=F,m=2,numrs=10,save_solutions=F,cores=1)
-#' fit<-lm(mpg~hp*wt,data=mtcars) #this is the most common answer from lmFSA.
+#' fit<-lm(yname="mpg",data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
+
 lmFSA=function(formula,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=r.squared,minmax="max",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
