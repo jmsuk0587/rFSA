@@ -35,6 +35,7 @@ which.min.na<-function(vec){
   which(vec==minval)
 }
 
+#' @export
 int.p.val<-function(model){
   tail(fit$coefficients,n = 1)
 }
