@@ -2,16 +2,16 @@
 % Please edit documentation in R/lmFSA.R
 \name{lmFSA}
 \alias{lmFSA}
-\title{FSA Linear Models}
+\title{Feasible Solution Algorithm (FSA) for Linear Models}
 \usage{
 lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = F, cores = 1, interactions = T,
+  save_solutions = F, cores = 1, interactions = F,
   criterion = r.squared, minmax = "max", ...)
 }
 \arguments{
-\item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details".}
+\item{data}{a data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model.}
 
-\item{data}{a data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.}
+\item{quad}{to include quadratic terms or not.}
 
 \item{numrs}{number of random starts to perform.}
 
@@ -19,25 +19,28 @@ lmFSA(formula, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
 
 \item{cores}{number of cores to use while running. Note: Windows can only use 1 core. See mclapply for details.}
 
-\item{interactions}{T or F for whether to include interactions in model.}
+\item{interactions}{T or F for whether to include interactions in model. Defaults to FALSE.}
 
-\item{criterion}{which criterion function to either maximize or minimize}
+\item{criterion}{which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA, cv10.lmFSA, apress, int.p.val, AIC, BIC.}
 
 \item{minmax}{whether to minimize or maximize the criterion function}
 
 \item{...}{arguments to be passed to the lm function}
 
-\item{fixvar=NULL}{a variable to fix in the model. Usually a covariate that should always be included (Age, Sex, ...). Will still consider it with interactions.}
+\item{yname}{the character form of the name of the y (response) variable. Please write the name of the y variable in quotes (example: "mpg").}
 
-\item{m=2}{order of interaction to look at. Defults to 2.}
+\item{fixvar=NULL}{a variable to fix in the model. Usually a covariate that should always be included (Example: Age, Sex). Will still consider it with interactions.}
+
+\item{m=2}{order of terms to potentially include. If interactions is set to TRUE then m is the order of interactions to be considered. Defaults to 2. For Subset selection (interaction=F), m is the size of the subset to examine.}
 }
 \value{
 returns a list of solutions and table of unique solutions.
 $solutions is a matrix of fixed terms, start position, feasible solution, criterion function value (p-value of interaction), and number of swaps to solution.
 $table is a matrix of the unique feasible solutions and how many times they occured out of the number of random starts chosen. It also returns any warning messages with these solutions in the last column.
+$efficiency is text comparing how many models you ran during your FSA search compared to how many you would have done with exhaustive search. Note: The FSA algorithm takes additional time to run on top of the model checks that were done during the algorithm. This additional time is approximately 15% more time than if you had just ran the model checks.
 }
 \description{
-A function using a Feasible Soultion Algorithm to find a set of feasible solutions for the linear model including mth-order interactions (Note that these solutions are optimal in the sense that no one swap to any of the variables will increase the criterion function.)
+A function using a Feasible Solution Algorithm to find a set of feasible solutions for a linear model of a specific form that could include mth-order interactions (Note that these solutions are optimal in the sense that no one swap to any of the variables will increase the criterion function.)
 }
 \details{
 PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
