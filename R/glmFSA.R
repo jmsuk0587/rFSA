@@ -38,7 +38,7 @@ glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   startvar<-NULL
   xdata<-data[,-ypos]
   ydata<-data[,ypos]
-  newdata<-data.frame(cbind(ydata,xdata))
+  newdata<<-data.frame(cbind(ydata,xdata))
   fixpos<-which(colnames(xdata) %in% fixvar)
   if(length(fixpos)==0){fixpos=NULL}
   
