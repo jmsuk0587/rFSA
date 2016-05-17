@@ -2,6 +2,7 @@
 
 export(adj.r.squared)
 export(apress)
+export(bdist)
 export(cv10.lmFSA)
 export(cv5.lmFSA)
 export(glmFSA)
