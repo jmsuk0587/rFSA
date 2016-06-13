@@ -55,7 +55,7 @@ glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
     if(minmax=="max"){last.criterion<-(-Inf)}
     if(minmax=="min"){last.criterion<-(Inf)}
     checks<-0
-    while(!identical(cur,last)){
+    while(!identical(cur,last)&&!identical(c(cur[2],cur[1]),last)){
       last<-cur
       if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
       if(numswap>0){moves<<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
