@@ -60,28 +60,7 @@ glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
       if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
       if(numswap>0){moves<<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
       }
-      if(m == 2){
-      vec<-rep(NA,dim(moves)[2])
-      for(g in 1:(dim(moves)[2])){
-        if(is.factor(xdata[,moves[1,g]]) && is.factor(xdata[,moves[2,g]])){
-          int<-(paste(xdata[,moves[1,g]],xdata[,moves[2,g]]))
-          int[is.na(xdata[,moves[1,g]])|is.na(xdata[,moves[2,g]])]<-NA
-          int<-as.factor(int)
-          h <- length(levels(int))
-          int1 <- xdata[,moves[1,g]]
-          int2 <- xdata[,moves[2,g]]
-          l1 <- length(levels(int1))
-          l2 <- length(levels(int2))
-          if(l1*l2 != h){
-            vec[g] <- 1
-          }
-        }
-      }
-      if(length(which(vec==1))>0){
-        keeps<-(1:(dim(moves)[2]))[-which(vec==1)]
-        moves <- moves[,keeps]
-      }
-      }
+     
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
