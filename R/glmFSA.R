@@ -29,7 +29,7 @@
 #' colnames(dat)
 #' glmFSA(yname="Class",data=dat,fixvar="Age",quad=F,m=2,numrs=10,save_solutions = F,fam="binomial",cores=1)
 
-glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=AIC,minmax="min",fam="binomial",...){
+glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=AIC,minmax="min",fam="binomial",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-yname

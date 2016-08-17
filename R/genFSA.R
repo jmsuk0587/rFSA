@@ -21,7 +21,7 @@
 #' $efficiency is text comparing how many models you ran during your FSA search compared to how many you would have done with exhaustive search. Note: The FSA algorithm takes additional time to run on top of the model checks that were done during the algorithm. This additional time is approximately 15% more time than if you had just ran the model checks. 
 #' @export
 
-genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
+genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
 
   originalnames<-colnames(data)
   data<-data.frame(data)
@@ -76,7 +76,10 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
         moves <<- moves[,keeps]
       }
       }
-      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;cur.criterion=last.criterion;numswap=numswap+1;break}
+      if(minmax=="min" && !exists("cur.criterion")){nextInf=20000000000}
+      if(minmax=="max" && !exists("cur.criterion")){nextInf=-20000000000}
+      if(exists("cur.criterion")){nextInf=last.criterion}
+      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;cur.criterion=nextInf;numswap=numswap+1;break}
       
       if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
@@ -102,6 +105,8 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
       last.pos<-cur
       memswap<-unique(c(memswap,last1))
     }
+    
+    
     history[i,(1+m):(2*m)]<-cur
     history[i,(dim(history)[2]-2)]<-cur.criterion
     history[i,(dim(history)[2]-1)]<-numswap-1

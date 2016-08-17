@@ -26,7 +26,7 @@
 #' fit<-lm(mpg~cyl*wt,data=mtcars) #this is the most common answer from lmFSA.
 #' summary(fit) #review
 
-lmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=r.squared,minmax="max",...){
+lmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=r.squared,minmax="max",...){
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-yname
