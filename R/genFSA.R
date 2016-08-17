@@ -22,6 +22,7 @@
 #' @export
 
 genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=F,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
+
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-yname
@@ -30,6 +31,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   startvar<-NULL
   xdata<-data[,-ypos]
   ydata<-data[,ypos]
+
   newdata<<-data.frame(cbind(ydata,xdata))
   fixpos<-which(colnames(xdata) %in% fixvar)
   if(length(fixpos)==0){fixpos=NULL}
@@ -74,8 +76,9 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
         moves <<- moves[,keeps]
       }
       }
-      if(is.NULL(moves)){break}
-      if(!is.na(checknum) && checknum<dim(moves)[2]){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
+      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;numswap=1;break}
+      
+      if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
@@ -108,11 +111,11 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
   print
-  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swaps","criterion")
+  colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swapsn","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
   colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
   solutions$criterion<-as.numeric(levels(solutions$criterion))[solutions$criterion]
-  solutions$swaps<-as.numeric(levels(solutions$swaps))[solutions$swaps]
+  solutions$swapsn<-as.numeric(levels(solutions$swapsn))[solutions$swapsn]
   solutions$checks<-as.numeric(levels(solutions$checks))[solutions$checks]
   if(length(fixvar)!=0){solutions<-data.frame(fixvar=matrix(rep(x=fixvar,dim(solutions)[1]),nrow=dim(solutions)[1],byrow=T),solutions)}
   if(save_solutions==T){write.csv(solutions,paste0(getwd(),"/FSAsolutions",".csv"))}
