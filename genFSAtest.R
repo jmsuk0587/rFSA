@@ -1,4 +1,4 @@
-dat <- read.delim(file.choose())
+dat <- read.delim(file.choose(),na.strings = "No Call")
 vec<-rep(NA,dim(dat)[2]-1)
 for(i in 1:(dim(dat)[2]-1)){
   vec[i]<-length(levels(dat[,i]))

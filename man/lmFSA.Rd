@@ -5,7 +5,7 @@
 \title{Feasible Solution Algorithm (FSA) for Linear Models}
 \usage{
 lmFSA(yname, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = F, cores = 1, interactions = F,
+  save_solutions = F, cores = 1, interactions = T,
   criterion = r.squared, minmax = "max", ...)
 }
 \arguments{

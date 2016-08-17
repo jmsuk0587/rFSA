@@ -5,7 +5,7 @@
 \title{Feasible Solution Algorithm (FSA) for Generalized Linear Models}
 \usage{
 glmFSA(yname, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = F, cores = 1, interactions = F, criterion = AIC,
+  save_solutions = F, cores = 1, interactions = T, criterion = AIC,
   minmax = "min", fam = "binomial", ...)
 }
 \arguments{
