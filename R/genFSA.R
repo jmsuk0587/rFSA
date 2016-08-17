@@ -76,7 +76,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
         moves <<- moves[,keeps]
       }
       }
-      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;numswap=numswap+1;break}
+      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;cur.criterion=last.criterion;numswap=numswap+1;break}
       
       if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
