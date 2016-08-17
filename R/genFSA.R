@@ -76,12 +76,13 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
         moves <<- moves[,keeps]
       }
       }
-      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;numswap=1;break}
+      if(is.null(dim(moves))||dim(moves)[2]==0){cur=last;numswap=numswap+1;break}
       
       if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
+      
       checks<-checks+dim(moves)[2]
       if(minmax=="max"){cur<-moves[,which.max.na(unlist(tmp))[1]]
       cur.criterion<-unlist(tmp[which.max.na(unlist(tmp))[1]])
@@ -110,7 +111,6 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
   solutions<-data.frame(solutions)
-  print
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swapsn","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
   colnames(solutions)[(m+1):(m*2)]=paste("best",1:m,sep=".")
