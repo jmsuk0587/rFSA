@@ -73,6 +73,7 @@ lmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=
       }
       
       
+      
       numswap<-numswap+1
       last1<-last
       last.criterion<-cur.criterion
