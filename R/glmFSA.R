@@ -55,11 +55,12 @@ glmFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
     if(minmax=="max"){last.criterion<-(-Inf)}
     if(minmax=="min"){last.criterion<-(Inf)}
     checks<-0
-    while(!identical(cur,last)){
+    while(!identical(cur,last)&&!identical(c(cur[2],cur[1]),last)){
       last<-cur
       if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
       if(numswap>0){moves<<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
       }
+     
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
