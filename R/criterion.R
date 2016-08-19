@@ -2,6 +2,7 @@
 r.squared<-function(model){
   summary(model)$r.squared
 }
+
 #' @export
 rmse<-function(model){
  sqrt(mean(model$residuals^2))
