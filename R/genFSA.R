@@ -23,6 +23,7 @@
 
 genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
 
+  print("data set up")
   originalnames<-colnames(data)
   data<-data.frame(data)
   lhsvar<-yname
@@ -51,6 +52,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
     checks<-0
     while(!identical(cur,last)&&!identical(c(cur[2],cur[1]),last)){
       last<-cur
+      print("finding swaps")
       if(numswap==0){moves<<-swaps(cur = cur,n = dim(xdata)[2],quad=quad)}
       if(numswap>0){moves<<-nextswap(curpos = cur,n = dim(xdata)[2],quad=quad,prevpos =memswap)$nswaps
       }
@@ -84,6 +86,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
       if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
+      print("fitting functions")
       tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
       
       checks<-checks+dim(moves)[2]
@@ -113,8 +116,10 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
     history[i,(dim(history)[2])]<-checks
     return(history[i,])
   }
+  print("fitting random starts")
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
+  printing("finishing")
   solutions<-data.frame(solutions)
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swapsn","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
