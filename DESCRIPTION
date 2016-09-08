@@ -13,6 +13,6 @@ Depends:
     R (>= 2.15.0),
     parallel,
     DAAG
-License: MIT
+License: GPL-2
 LazyData: TRUE
 RoxygenNote: 5.0.0
