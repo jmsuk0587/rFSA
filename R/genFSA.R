@@ -119,7 +119,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   print("fitting random starts")
   solutions<-matrix(unlist(lapply(1:numrs,FUN =function(i) fsa(i,history))),ncol=dim(history)[2],byrow = T)
   solutions[,1:(2*m)]<-matrix(colnames(newdata)[c(solutions[,1:(2*m)]+1)],ncol=(2*m))
-  printing("finishing")
+  print("finishing")
   solutions<-data.frame(solutions)
   colnames(solutions)[dim(solutions)[2]:(dim(solutions)[2]-2)]=c("checks","swapsn","criterion")
   colnames(solutions)[1:m]=paste("start",1:m,sep=".")
