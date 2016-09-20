@@ -4,9 +4,9 @@
 \alias{genFSA}
 \title{Feasible Solution Algorithm (FSA) for Genetic Models}
 \usage{
-genFSA(yname, data, fixvar = NULL, quad = F, m = 2, numrs = 1,
-  save_solutions = F, cores = 1, interactions = T, criterion = AIC,
-  minmax = "min", fam = "binomial", checknum = NA, ...)
+genFSA(yname, data, fitfunc = glm, fixvar = NULL, quad = F, m = 2,
+  numrs = 1, save_solutions = F, cores = 1, interactions = T,
+  criterion = AIC, minmax = "min", fam = "binomial", checknum = NA, ...)
 }
 \arguments{
 \item{yname}{the character form of the name of the y (response) variable. Please write the name of the y variable in quotes (example: "Disease").}

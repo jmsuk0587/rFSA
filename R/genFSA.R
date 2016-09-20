@@ -21,7 +21,7 @@
 #' $efficiency is text comparing how many models you ran during your FSA search compared to how many you would have done with exhaustive search. Note: The FSA algorithm takes additional time to run on top of the model checks that were done during the algorithm. This additional time is approximately 15% more time than if you had just ran the model checks. 
 #' @export
 
-genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
+genFSA=function(yname,data,fitfunc=glm,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores=1,interactions=T,criterion=AIC,minmax="min",fam="binomial",checknum=NA,...){
 
   originalnames<-colnames(data)
   data<-data.frame(data)
@@ -84,7 +84,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
       if((!is.na(checknum)) && (checknum<dim(moves)[2])){moves<<-moves[,sample(1:dim(moves)[2],size=checknum,replace=F)]}
       if(interactions==T){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "*")),sep="")}
       if(interactions==F){form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(colnames(xdata)[moves[,j]],collapse = "+")),sep="")}
-      tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(glm(form(k),data=newdata,family=fam,...)),mc.cores=cores)
+      tmp<-mclapply(X = 1:dim(moves)[2],FUN = function(k) criterion(fitfunc(form(k),data=newdata,family=fam,...)),mc.cores=cores)
       
       checks<-checks+dim(moves)[2]
       if(minmax=="max"){cur<-moves[,which.max.na(unlist(tmp))[1]]
@@ -151,7 +151,7 @@ genFSA=function(yname,data,fixvar=NULL,quad=F,m=2,numrs=1,save_solutions=F,cores
   form<-function(j) formula(paste0(colnames(newdata)[1],"~",paste0(fixvar,sep="+"),paste(tableres[j,2:m+1],collapse = "*")),sep="")
   warns<-NULL
   for (i in 1:dim(tableres)[1]){
-    ca<-as.character(withWarnings(glm(form(i),data=newdata,family=fam,...))$warnings[[1]])
+    ca<-as.character(withWarnings(fitfunc(form(i),data=newdata,family=fam,...))$warnings[[1]])
     if(length(ca)==0){warns<-c(warns,NA)}
     else{warns<-c(warns,ca)}
   }
