@@ -9,7 +9,7 @@ The Feasible Solution Algorithm (FSA) addresses this problem in the following wa
 1. Choose Xk randomly and compute the objective function m.
 2. Consider exchanging one of the k selected variables from the current model
 3. Make the single exchange that improves the objective function m the most.
-4. Keep making exchanges until the objective function does not improve. These variables Xp+;Xk are called a feasible solution.
+4. Keep making exchanges until the objective function does not improve. These variables Xp+;Xk are called a feasible solution.
 5. Return to (1) to find another feasible solution.
 
 In another instance of the FSA, we include the jth order interaction and lower order terms we are considering in step 1. We then continue on to step 2, only this time when we make an exchange it changes the jth order interaction and the lower interactions and main effects as well. We could then optimize based on a model criterion or on an interaction terms p-value.
