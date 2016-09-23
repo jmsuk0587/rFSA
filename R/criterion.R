@@ -42,6 +42,7 @@ which.min.na<-function(vec){
 
 #' @export
 int.p.val<-function(model){
+show(tail(anova(model,test="LRT")$`Pr(>Chi)`,1))
   tail(anova(model,test="LRT")$`Pr(>Chi)`,1)
 }
 
