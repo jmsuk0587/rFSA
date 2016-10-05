@@ -31,7 +31,7 @@ swaps<- function(cur,n,quad=FALSE){
 #' @return a matrix with the possible forms by column.
 #' @export
 nextswap<-function(curpos,n,prevpos,quad=FALSE){
-  swps<-swaps1(curpos,n,quad)
+  swps<-swaps(curpos,n,quad)
   nextpos<-colSums(do.call(rbind,parallel::mclapply(1:dim(swps)[1],FUN = function(qq){
     (swps[qq,] %in% prevpos)
   },mc.cores=dim(swps)[1])))
