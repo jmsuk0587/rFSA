@@ -101,14 +101,14 @@ lmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,
         form <-
           function(j)
             formula(paste0(
-              colnames(newdata)[1],"~",paste0(fixvar,sep = "+"),paste(colnames(xdata)[moves[,j]],collapse = "*")
+              colnames(newdata)[1],"~",paste(fixvar,collapse = "+"),"+",paste(colnames(xdata)[moves[,j]],collapse = "*")
             ),sep = "")
       }
       if (interactions == F) {
         form <-
           function(j)
             formula(paste0(
-              colnames(newdata)[1],"~",paste0(fixvar,sep = "+"),paste(colnames(xdata)[moves[,j]],collapse = "+")
+              colnames(newdata)[1],"~",paste(fixvar,collapse = "+"),"+",paste(colnames(xdata)[moves[,j]],collapse = "+")
             ),sep = "")
       }
       tmp <-

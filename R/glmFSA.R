@@ -108,14 +108,14 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
         form <-
           function(j)
             formula(paste0(
-              colnames(newdata)[1],"~",paste0(fixvar,sep = "+"),paste(colnames(xdata)[moves[,j]],collapse = "*")
+              colnames(newdata)[1],"~",paste(fixvar,collapse = "+"),"+",paste(colnames(xdata)[moves[,j]],collapse = "*")
             ),sep = "")
       }
       if (interactions == F) {
         form <-
           function(j)
             formula(paste0(
-              colnames(newdata)[1],"~",paste0(fixvar,sep = "+"),paste(colnames(xdata)[moves[,j]],collapse = "+")
+              colnames(newdata)[1],"~",paste(fixvar,collapse = "+"),"+",paste(colnames(xdata)[moves[,j]],collapse = "+")
             ),sep = "")
       }
       tmp <-
@@ -130,8 +130,6 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
         )
       checks <- checks + dim(moves)[2]
       if (minmax == "max") {
-        show(tmp)
-        scan()
         cur <- moves[,which.max.na(unlist(tmp))[1]]
         cur.criterion <- unlist(tmp[which.max.na(unlist(tmp))[1]])
         print(cur.criterion)
@@ -141,8 +139,6 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
         }
       }
       if (minmax == "min") {
-        show(tmp)
-        scan()
         cur <- moves[,which.min.na(unlist(tmp))[1]]
         cur.criterion <- unlist(tmp[which.min.na(unlist(tmp))[1]])
         print(cur.criterion)
@@ -176,7 +172,7 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
       paste("start",1:m,sep = "."),paste("best",1:m,sep = "."),"criterion","swaps","checks"
     )
   solutions$criterion <-
-    as.numeric(as.character(levels(solutions$criterion)))[solutions$criterion]
+    as.numeric(levels(solutions$criterion))[solutions$criterion]
   solutions$swaps <-
     as.numeric(levels(solutions$swaps))[solutions$swaps]
   solutions$checks <-
