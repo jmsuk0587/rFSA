@@ -120,10 +120,13 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
       }
       tmp <-
         parallel::mclapply(
-          X = 1:dim(moves)[2],FUN = function(k)
-            criterion(glm(
-              form(k),data = newdata,family = family,...
-            )),mc.cores = cores
+          X = 1:dim(moves)[2],FUN = function(k){
+            if((sum(complete.cases(cbind(ydata,xdata[,moves[,k]])))/length(ydata))>0.1){
+              criterion(glm(
+                form(k),data = newdata,family = family,...
+              )) 
+            } else {NA}
+          },mc.cores = cores
         )
       checks <- checks + dim(moves)[2]
       if (minmax == "max") {
