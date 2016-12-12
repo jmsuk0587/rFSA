@@ -113,8 +113,11 @@ lmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,
       }
       tmp <-
         parallel::mclapply(
-          X = 1:dim(moves)[2],FUN = function(k)
-            criterion(lm(form(k),data = newdata,...)),mc.cores = cores
+          X = 1:dim(moves)[2],FUN =function(k){
+            if((sum(complete.cases(cbind(ydata,xdata[,moves[,k]])))/length(ydata))>0.05){
+              criterion(lm(form(k),data = newdata,...))
+            } else {NA}
+          },mc.cores = cores
         )
       checks <- checks + dim(moves)[2]
       if (minmax == "max") {

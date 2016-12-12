@@ -121,7 +121,7 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
       tmp <-
         parallel::mclapply(
           X = 1:dim(moves)[2],FUN = function(k){
-            if((sum(complete.cases(cbind(ydata,xdata[,moves[,k]])))/length(ydata))>0.1){
+            if((sum(complete.cases(cbind(ydata,xdata[,moves[,k]])))/length(ydata))>0.05){
               criterion(glm(
                 form(k),data = newdata,family = family,...
               )) 
