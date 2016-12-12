@@ -132,7 +132,6 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
       if (minmax == "max") {
         cur <- moves[,which.max.na(unlist(tmp))[1]]
         cur.criterion <- unlist(tmp[which.max.na(unlist(tmp))[1]])
-        print(cur.criterion)
         if (last.criterion > cur.criterion) {
           cur <- last.pos
           cur.criterion <- last.criterion
@@ -141,7 +140,6 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
       if (minmax == "min") {
         cur <- moves[,which.min.na(unlist(tmp))[1]]
         cur.criterion <- unlist(tmp[which.min.na(unlist(tmp))[1]])
-        print(cur.criterion)
         if (last.criterion < cur.criterion) {
           cur <- last.pos
           cur.criterion <- last.criterion
