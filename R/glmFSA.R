@@ -39,7 +39,7 @@
 #'        numrs=10,family="binomial",cores=1)
 glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores = 1,
                   interactions = TRUE,criterion = AIC,minmax = "min",family =
-                    "binomial",...) {
+                    "binomial",checkfeas=NULL,...) {
   if(identical(criterion,r.squared)|identical(criterion,r.squared)){return(show("Sorry the criterion function you listed cannot be used with glmFSA."))}
   formula <- as.formula(formula)
   fit <- glm(formula,data = data,family = family,...)
@@ -72,7 +72,13 @@ glmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,cores 
   }
   
   history <- matrix(rep(NA,numrs * (2 * m + 3)),ncol = ((2 * m + 3)))
-  history[,1:m] <- rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs)
+  
+  if(!is.null(checkfeas)){
+    checkfeas<-which(colnames(xdata) %in% checkfeas)
+    history[,1:m] <-rbind(rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs-1),c(checkfeas[1:m]))
+  } else  history[,1:m] <- rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs)
+  
+  
   curpos <- which(colnames(xdata) %in% startvar[-1])
   if (length(curpos) != 0) {
     history <- rbind(c(curpos,rep(NA,length(curpos) + 2)),history)

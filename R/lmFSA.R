@@ -10,6 +10,7 @@
 #' @param interactions T or F for whether to include interactions in model. Defaults to FALSE. 
 #' @param criterion which criterion function to either maximize or minimize. For linear models one can use: r.squared, adj.r.squared, cv5.lmFSA (5 Fold Cross Validation error), cv10.lmFSA (10 Fold Cross Validation error), apress (Allen's Press Statistic), int.p.val (Interaction P-value), AIC, BIC.
 #' @param minmax whether to minimize or maximize the criterion function
+#' @param checkfeas A vector of a potential feasible solution
 #' @param ... arguments to be passed to the lm function
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 #' @return returns a list of solutions and table of unique solutions.
@@ -31,7 +32,7 @@
 #' print(fit) #print formulas of fitted models
 #' summary(fit) #review
 lmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,
-                 cores = 1,interactions = TRUE,criterion = r.squared,minmax = "max",...) {
+                 cores = 1,interactions = TRUE,criterion = r.squared,minmax = "max",checkfeas=NULL,...) {
   if(identical(criterion,bdist)){return(show("Sorry the criterion function you listed cannot be used with lmFSA."))}
   formula <- as.formula(formula)
   fit <- lm(formula,data = data,...)
@@ -65,7 +66,12 @@ lmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,
   }
   
   history <- matrix(rep(NA,numrs * (2 * m + 3)),ncol = ((2 * m + 3)))
-  history[,1:m] <- rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs)
+  
+  if(!is.null(checkfeas)){
+    checkfeas<-which(colnames(xdata) %in% checkfeas)
+    history[,1:m] <-rbind(rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs-1),c(checkfeas[1:m]))
+  } else  history[,1:m] <- rstart(m = m,nvars = (dim(newdata)[2] - 1),numrs = numrs)
+  
   curpos <- which(colnames(xdata) %in% startvar[-1])
   if (length(curpos) != 0) {
     history <- rbind(c(curpos,rep(NA,length(curpos) + 2)),history)
