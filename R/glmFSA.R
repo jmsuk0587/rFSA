@@ -11,6 +11,7 @@
 #' @param interactions T or F for whether to include interactions in model. Defaults to FALSE. 
 #' @param criterion which criterion function to either maximize or minimize. For linear models one can use: apress (Allens Press Statistic), int.p.val (Interaction p-value), AIC, BIC.
 #' @param minmax whether to minimize or maximize the criterion function
+#' @param checkfeas A vector of a potential feasible solution
 #' @param ... arguments to be passed to the glm function
 #' @details PLEASE NOTE: make sure categorical variables are factors or characters otherwise answers will not reflect the variable being treated as a continuous variable.
 #' @return returns a list of solutions and table of unique solutions.
