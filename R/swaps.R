@@ -55,16 +55,4 @@ swaps <- function(cur,n,quad = FALSE) {
 #' @param prevpos A vector of previous best spots
 #' @return a matrix with the possible forms by column.
 #' @export
-nextswap <- function(curpos,n,prevpos,quad) {
-  swps <- swaps(curpos,n,quad)
-  nextpos <- rep(FALSE,dim(swps)[2])
-  for (i in 1:dim(swps)[1]) {
-    nextpos <- nextpos + (swps[i,] %in% prevpos)
-  }
-  
-  retSwps <- swps[,nextpos == (length(curpos) - 2)]
-  if (is.null(dim(retSwps))) {
-    retSwps <- t(t(retSwps))
-  }
-  return(list(nswaps = retSwps,prevpos = prevpos))
-}
+nextswap <- swaps
