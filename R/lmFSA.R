@@ -97,8 +97,8 @@ lmFSA = function(formula,data,fixvar = NULL,quad = FALSE,m = 2,numrs = 1,
       if (numswap > 0) {
         moves <-
           nextswap(
-            curpos = cur,n = dim(xdata)[2],quad = quad,prevpos = memswap
-          )$nswaps
+            cur = cur,n = dim(xdata)[2],quad = quad
+          )
       }
       if (dim(moves)[2] == 0) {
         moves <- t(t(last))
